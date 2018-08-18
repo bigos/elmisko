@@ -1,0 +1,23 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Name:</strong>
+  <%= @population.name %>
+</p>
+
+<%= link_to 'Edit', edit_population_path(@population) %> |
+<%= link_to 'Back', populations_path %>
+
+<hr>
+
+<div id="elmdiv"></div>
+
+<script>
+ var node = document.getElementById('elmdiv');
+ var app = Elm.Main.embed(node, {
+   analyteid: <%= @population.id %>,
+   chart_data: '<%= raw @population.samples.to_json %>'
+ });
+ // Note: if your Elm module is named "MyThing.Root" you
+ // would call "Elm.MyThing.Root.embed(node)" instead.
+</script>
