@@ -20734,7 +20734,7 @@ var _user$project$Main$chartConfig = function (model) {
 		events: _terezka$line_charts$LineChart_Events$hoverMany(_user$project$Main$Hint),
 		junk: A3(_terezka$line_charts$LineChart_Junk$hoverMany, model.hinted, _user$project$Main$formatX, _user$project$Main$formatY),
 		grid: A2(_terezka$line_charts$LineChart_Grid$dots, 1, _terezka$line_charts$LineChart_Colors$gray),
-		area: _terezka$line_charts$LineChart_Area$stacked(0.5),
+		area: _terezka$line_charts$LineChart_Area$default,
 		line: _terezka$line_charts$LineChart_Line$default,
 		dots: _terezka$line_charts$LineChart_Dots$custom(
 			A2(_terezka$line_charts$LineChart_Dots$empty, 5, 1))
