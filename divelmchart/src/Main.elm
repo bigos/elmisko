@@ -135,23 +135,11 @@ decodeTimeStamp =
 
 init : Flags -> ( Model, Cmd Msg )
 init flags =
-    ( { data = Data []
+    ( { data = Data (List.map (\d -> Datum (ISO8601.toTime d.d) d.c) (destruktor flags.chart_data))
       , hinted = []
       }
-    , generateData flags
+    , Cmd.none
     )
-
-
-generateData flags =
-    let
-        _ =
-            Debug.log ("zzzzzz " ++ (toString (destruktor flags.chart_data))) 1
-
-        genNumbers =
-            Random.list 40 (Random.float 5 20)
-    in
-        Random.map identity genNumbers
-            |> Random.generate RecieveData
 
 
 
@@ -230,18 +218,12 @@ destruktor s =
 
 
 type Msg
-    = RecieveData (List Float)
-    | Hint (List Datum)
+    = Hint (List Datum)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        RecieveData numbers ->
-            model
-                |> setData numbers
-                |> addCmd Cmd.none
-
         Hint points ->
             model
                 |> setHint points
