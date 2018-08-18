@@ -20704,6 +20704,10 @@ var _user$project$Main$update = F2(
 				A2(_user$project$Main$setHint, _p2._0, model));
 		}
 	});
+var _user$project$Main$Flags = F2(
+	function (a, b) {
+		return {analyteid: a, chart_data: b};
+	});
 var _user$project$Main$Hint = function (a) {
 	return {ctor: 'Hint', _0: a};
 };
@@ -20782,25 +20786,39 @@ var _user$project$Main$generateData = function () {
 			genNumbers,
 			genNumbers));
 }();
-var _user$project$Main$init = {
-	ctor: '_Tuple2',
-	_0: {
-		data: A3(
-			_user$project$Main$Data,
-			{ctor: '[]'},
-			{ctor: '[]'},
-			{ctor: '[]'}),
-		hinted: {ctor: '[]'}
-	},
-	_1: _user$project$Main$generateData
+var _user$project$Main$init = function (flags) {
+	return {
+		ctor: '_Tuple2',
+		_0: {
+			data: A3(
+				_user$project$Main$Data,
+				{ctor: '[]'},
+				{ctor: '[]'},
+				{ctor: '[]'}),
+			hinted: {ctor: '[]'}
+		},
+		_1: _user$project$Main$generateData
+	};
 };
-var _user$project$Main$main = _elm_lang$html$Html$program(
+var _user$project$Main$main = _elm_lang$html$Html$programWithFlags(
 	{
 		init: _user$project$Main$init,
 		update: _user$project$Main$update,
 		view: _user$project$Main$view,
 		subscriptions: _elm_lang$core$Basics$always(_elm_lang$core$Platform_Sub$none)
-	})();
+	})(
+	A2(
+		_elm_lang$core$Json_Decode$andThen,
+		function (analyteid) {
+			return A2(
+				_elm_lang$core$Json_Decode$andThen,
+				function (chart_data) {
+					return _elm_lang$core$Json_Decode$succeed(
+						{analyteid: analyteid, chart_data: chart_data});
+				},
+				A2(_elm_lang$core$Json_Decode$field, 'chart_data', _elm_lang$core$Json_Decode$string));
+		},
+		A2(_elm_lang$core$Json_Decode$field, 'analyteid', _elm_lang$core$Json_Decode$int)));
 
 var Elm = {};
 Elm['Main'] = Elm['Main'] || {};

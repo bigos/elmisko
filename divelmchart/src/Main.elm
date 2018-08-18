@@ -57,6 +57,12 @@ type alias Datum =
     }
 
 
+type alias Flags =
+    { analyteid : Int
+    , chart_data : String
+    }
+
+
 
 -- INIT
 
@@ -221,6 +227,7 @@ round100 float =
 -- PROGRAM
 
 
+main : Program Flags Model Msg
 main =
     Html.programWithFlags
         { init = init
