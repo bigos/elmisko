@@ -61,8 +61,8 @@ type alias Datum =
 -- INIT
 
 
-init : ( Model, Cmd Msg )
-init =
+init : Flags -> ( Model, Cmd Msg )
+init flags =
     ( { data = Data [] [] []
       , hinted = []
       }
@@ -221,9 +221,8 @@ round100 float =
 -- PROGRAM
 
 
-main : Program Never Model Msg
 main =
-    Html.program
+    Html.programWithFlags
         { init = init
         , update = update
         , view = view
