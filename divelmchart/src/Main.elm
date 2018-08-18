@@ -89,6 +89,46 @@ type alias Point =
     { x : Float, y : Float }
 
 
+decodeMyData : Decoder MyData
+decodeMyData =
+    map MyData (field "vals" decodeVals)
+
+
+decodeVals : Decoder Vals
+decodeVals =
+    (map2 Vals (field "stats" decodeStats) (field "qcresults" decodeQcresults))
+
+
+decodeStats : Decoder Stats
+decodeStats =
+    map3 Stats (field "nominal" float) (field "mean" float) (field "deviation" float)
+
+
+decodeQcresults : Decoder (List Cid)
+decodeQcresults =
+    list decodeCid
+
+
+decodeCid : Decoder Cid
+decodeCid =
+    map3 Cid (field "id" int) (field "c" float) (field "d" decodeTimeStamp)
+
+
+decodeTimeStamp : Decoder ISO8601.Time
+decodeTimeStamp =
+    string
+        |> andThen
+            (\val ->
+                (case (ISO8601.fromString val) of
+                    Ok ts ->
+                        Json.Decode.succeed ts
+
+                    Err errmsg ->
+                        Json.Decode.fail errmsg
+                )
+            )
+
+
 
 -- INIT
 
@@ -98,17 +138,19 @@ init flags =
     ( { data = Data []
       , hinted = []
       }
-    , generateData
+    , generateData flags
     )
 
 
-generateData : Cmd Msg
-generateData =
+generateData flags =
     let
+        _ =
+            Debug.log ("zzzzzz " ++ (toString flags)) 1
+
         genNumbers =
             Random.list 40 (Random.float 5 20)
     in
-        Random.map3 (,,) genNumbers genNumbers genNumbers
+        Random.map identity genNumbers
             |> Random.generate RecieveData
 
 
@@ -116,9 +158,9 @@ generateData =
 -- API
 
 
-setData : ( List Float, List Float, List Float ) -> Model -> Model
-setData ( n1, n2, n3 ) model =
-    { model | data = Data (toData n1) (toData n2) (toData n3) }
+setData : List Float -> Model -> Model
+setData n1 model =
+    { model | data = Data (toData n1) }
 
 
 toData : List Float -> List Datum
@@ -160,7 +202,7 @@ setHint hinted model =
 
 
 type Msg
-    = RecieveData ( List Float, List Float, List Float )
+    = RecieveData (List Float)
     | Hint (List Datum)
 
 
