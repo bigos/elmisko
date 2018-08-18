@@ -45,9 +45,7 @@ type alias Model =
 
 
 type alias Data =
-    { nora : List Datum
-    , noah : List Datum
-    , nina : List Datum
+    { nina : List Datum
     }
 
 
@@ -69,7 +67,7 @@ type alias Flags =
 
 init : Flags -> ( Model, Cmd Msg )
 init flags =
-    ( { data = Data [] [] []
+    ( { data = Data []
       , hinted = []
       }
     , generateData
@@ -165,9 +163,7 @@ view : Model -> Html.Html Msg
 view model =
     Html.div []
         [ LineChart.viewCustom (chartConfig model)
-            [ LineChart.line Colors.pink Dots.diamond "Nora" model.data.nora
-            , LineChart.line Colors.cyan Dots.circle "Noah" model.data.noah
-            , LineChart.line Colors.blue Dots.triangle "Nina" model.data.nina
+            [ LineChart.line Colors.blue Dots.triangle "Nina" model.data.nina
             ]
         ]
 
@@ -187,7 +183,7 @@ chartConfig model =
     , events = Events.hoverMany Hint
     , junk = Junk.hoverMany model.hinted formatX formatY
     , grid = Grid.dots 1 Colors.gray
-    , area = Area.stacked 0.5
+    , area = Area.default
     , line = Line.default
     , dots = Dots.custom (Dots.empty 5 1)
     }
