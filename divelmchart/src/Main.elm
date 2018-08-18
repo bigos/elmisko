@@ -145,7 +145,7 @@ init flags =
 generateData flags =
     let
         _ =
-            Debug.log ("zzzzzz " ++ (toString flags)) 1
+            Debug.log ("zzzzzz " ++ (toString (destruktor flags.chart_data))) 1
 
         genNumbers =
             Random.list 40 (Random.float 5 20)
@@ -199,6 +199,34 @@ setHint hinted model =
 
 
 -- UPDATE
+
+
+extract : String -> Maybe MyData
+extract j =
+    let
+        a =
+            decodeString decodeMyData j
+    in
+        case a of
+            Ok z ->
+                Just z
+
+            Err _ ->
+                Nothing
+
+
+destruktor : String -> List Cid
+destruktor s =
+    let
+        d =
+            extract s
+    in
+        case d of
+            Nothing ->
+                []
+
+            Just a ->
+                a.vals.qcresults
 
 
 type Msg
