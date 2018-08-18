@@ -6650,6 +6650,385 @@ return {
 
 }();
 
+var _elm_lang$core$Random$onSelfMsg = F3(
+	function (_p1, _p0, seed) {
+		return _elm_lang$core$Task$succeed(seed);
+	});
+var _elm_lang$core$Random$magicNum8 = 2147483562;
+var _elm_lang$core$Random$range = function (_p2) {
+	return {ctor: '_Tuple2', _0: 0, _1: _elm_lang$core$Random$magicNum8};
+};
+var _elm_lang$core$Random$magicNum7 = 2147483399;
+var _elm_lang$core$Random$magicNum6 = 2147483563;
+var _elm_lang$core$Random$magicNum5 = 3791;
+var _elm_lang$core$Random$magicNum4 = 40692;
+var _elm_lang$core$Random$magicNum3 = 52774;
+var _elm_lang$core$Random$magicNum2 = 12211;
+var _elm_lang$core$Random$magicNum1 = 53668;
+var _elm_lang$core$Random$magicNum0 = 40014;
+var _elm_lang$core$Random$step = F2(
+	function (_p3, seed) {
+		var _p4 = _p3;
+		return _p4._0(seed);
+	});
+var _elm_lang$core$Random$onEffects = F3(
+	function (router, commands, seed) {
+		var _p5 = commands;
+		if (_p5.ctor === '[]') {
+			return _elm_lang$core$Task$succeed(seed);
+		} else {
+			var _p6 = A2(_elm_lang$core$Random$step, _p5._0._0, seed);
+			var value = _p6._0;
+			var newSeed = _p6._1;
+			return A2(
+				_elm_lang$core$Task$andThen,
+				function (_p7) {
+					return A3(_elm_lang$core$Random$onEffects, router, _p5._1, newSeed);
+				},
+				A2(_elm_lang$core$Platform$sendToApp, router, value));
+		}
+	});
+var _elm_lang$core$Random$listHelp = F4(
+	function (list, n, generate, seed) {
+		listHelp:
+		while (true) {
+			if (_elm_lang$core$Native_Utils.cmp(n, 1) < 0) {
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$List$reverse(list),
+					_1: seed
+				};
+			} else {
+				var _p8 = generate(seed);
+				var value = _p8._0;
+				var newSeed = _p8._1;
+				var _v2 = {ctor: '::', _0: value, _1: list},
+					_v3 = n - 1,
+					_v4 = generate,
+					_v5 = newSeed;
+				list = _v2;
+				n = _v3;
+				generate = _v4;
+				seed = _v5;
+				continue listHelp;
+			}
+		}
+	});
+var _elm_lang$core$Random$minInt = -2147483648;
+var _elm_lang$core$Random$maxInt = 2147483647;
+var _elm_lang$core$Random$iLogBase = F2(
+	function (b, i) {
+		return (_elm_lang$core$Native_Utils.cmp(i, b) < 0) ? 1 : (1 + A2(_elm_lang$core$Random$iLogBase, b, (i / b) | 0));
+	});
+var _elm_lang$core$Random$command = _elm_lang$core$Native_Platform.leaf('Random');
+var _elm_lang$core$Random$Generator = function (a) {
+	return {ctor: 'Generator', _0: a};
+};
+var _elm_lang$core$Random$list = F2(
+	function (n, _p9) {
+		var _p10 = _p9;
+		return _elm_lang$core$Random$Generator(
+			function (seed) {
+				return A4(
+					_elm_lang$core$Random$listHelp,
+					{ctor: '[]'},
+					n,
+					_p10._0,
+					seed);
+			});
+	});
+var _elm_lang$core$Random$map = F2(
+	function (func, _p11) {
+		var _p12 = _p11;
+		return _elm_lang$core$Random$Generator(
+			function (seed0) {
+				var _p13 = _p12._0(seed0);
+				var a = _p13._0;
+				var seed1 = _p13._1;
+				return {
+					ctor: '_Tuple2',
+					_0: func(a),
+					_1: seed1
+				};
+			});
+	});
+var _elm_lang$core$Random$map2 = F3(
+	function (func, _p15, _p14) {
+		var _p16 = _p15;
+		var _p17 = _p14;
+		return _elm_lang$core$Random$Generator(
+			function (seed0) {
+				var _p18 = _p16._0(seed0);
+				var a = _p18._0;
+				var seed1 = _p18._1;
+				var _p19 = _p17._0(seed1);
+				var b = _p19._0;
+				var seed2 = _p19._1;
+				return {
+					ctor: '_Tuple2',
+					_0: A2(func, a, b),
+					_1: seed2
+				};
+			});
+	});
+var _elm_lang$core$Random$pair = F2(
+	function (genA, genB) {
+		return A3(
+			_elm_lang$core$Random$map2,
+			F2(
+				function (v0, v1) {
+					return {ctor: '_Tuple2', _0: v0, _1: v1};
+				}),
+			genA,
+			genB);
+	});
+var _elm_lang$core$Random$map3 = F4(
+	function (func, _p22, _p21, _p20) {
+		var _p23 = _p22;
+		var _p24 = _p21;
+		var _p25 = _p20;
+		return _elm_lang$core$Random$Generator(
+			function (seed0) {
+				var _p26 = _p23._0(seed0);
+				var a = _p26._0;
+				var seed1 = _p26._1;
+				var _p27 = _p24._0(seed1);
+				var b = _p27._0;
+				var seed2 = _p27._1;
+				var _p28 = _p25._0(seed2);
+				var c = _p28._0;
+				var seed3 = _p28._1;
+				return {
+					ctor: '_Tuple2',
+					_0: A3(func, a, b, c),
+					_1: seed3
+				};
+			});
+	});
+var _elm_lang$core$Random$map4 = F5(
+	function (func, _p32, _p31, _p30, _p29) {
+		var _p33 = _p32;
+		var _p34 = _p31;
+		var _p35 = _p30;
+		var _p36 = _p29;
+		return _elm_lang$core$Random$Generator(
+			function (seed0) {
+				var _p37 = _p33._0(seed0);
+				var a = _p37._0;
+				var seed1 = _p37._1;
+				var _p38 = _p34._0(seed1);
+				var b = _p38._0;
+				var seed2 = _p38._1;
+				var _p39 = _p35._0(seed2);
+				var c = _p39._0;
+				var seed3 = _p39._1;
+				var _p40 = _p36._0(seed3);
+				var d = _p40._0;
+				var seed4 = _p40._1;
+				return {
+					ctor: '_Tuple2',
+					_0: A4(func, a, b, c, d),
+					_1: seed4
+				};
+			});
+	});
+var _elm_lang$core$Random$map5 = F6(
+	function (func, _p45, _p44, _p43, _p42, _p41) {
+		var _p46 = _p45;
+		var _p47 = _p44;
+		var _p48 = _p43;
+		var _p49 = _p42;
+		var _p50 = _p41;
+		return _elm_lang$core$Random$Generator(
+			function (seed0) {
+				var _p51 = _p46._0(seed0);
+				var a = _p51._0;
+				var seed1 = _p51._1;
+				var _p52 = _p47._0(seed1);
+				var b = _p52._0;
+				var seed2 = _p52._1;
+				var _p53 = _p48._0(seed2);
+				var c = _p53._0;
+				var seed3 = _p53._1;
+				var _p54 = _p49._0(seed3);
+				var d = _p54._0;
+				var seed4 = _p54._1;
+				var _p55 = _p50._0(seed4);
+				var e = _p55._0;
+				var seed5 = _p55._1;
+				return {
+					ctor: '_Tuple2',
+					_0: A5(func, a, b, c, d, e),
+					_1: seed5
+				};
+			});
+	});
+var _elm_lang$core$Random$andThen = F2(
+	function (callback, _p56) {
+		var _p57 = _p56;
+		return _elm_lang$core$Random$Generator(
+			function (seed) {
+				var _p58 = _p57._0(seed);
+				var result = _p58._0;
+				var newSeed = _p58._1;
+				var _p59 = callback(result);
+				var genB = _p59._0;
+				return genB(newSeed);
+			});
+	});
+var _elm_lang$core$Random$State = F2(
+	function (a, b) {
+		return {ctor: 'State', _0: a, _1: b};
+	});
+var _elm_lang$core$Random$initState = function (seed) {
+	var s = A2(_elm_lang$core$Basics$max, seed, 0 - seed);
+	var q = (s / (_elm_lang$core$Random$magicNum6 - 1)) | 0;
+	var s2 = A2(_elm_lang$core$Basics_ops['%'], q, _elm_lang$core$Random$magicNum7 - 1);
+	var s1 = A2(_elm_lang$core$Basics_ops['%'], s, _elm_lang$core$Random$magicNum6 - 1);
+	return A2(_elm_lang$core$Random$State, s1 + 1, s2 + 1);
+};
+var _elm_lang$core$Random$next = function (_p60) {
+	var _p61 = _p60;
+	var _p63 = _p61._1;
+	var _p62 = _p61._0;
+	var k2 = (_p63 / _elm_lang$core$Random$magicNum3) | 0;
+	var rawState2 = (_elm_lang$core$Random$magicNum4 * (_p63 - (k2 * _elm_lang$core$Random$magicNum3))) - (k2 * _elm_lang$core$Random$magicNum5);
+	var newState2 = (_elm_lang$core$Native_Utils.cmp(rawState2, 0) < 0) ? (rawState2 + _elm_lang$core$Random$magicNum7) : rawState2;
+	var k1 = (_p62 / _elm_lang$core$Random$magicNum1) | 0;
+	var rawState1 = (_elm_lang$core$Random$magicNum0 * (_p62 - (k1 * _elm_lang$core$Random$magicNum1))) - (k1 * _elm_lang$core$Random$magicNum2);
+	var newState1 = (_elm_lang$core$Native_Utils.cmp(rawState1, 0) < 0) ? (rawState1 + _elm_lang$core$Random$magicNum6) : rawState1;
+	var z = newState1 - newState2;
+	var newZ = (_elm_lang$core$Native_Utils.cmp(z, 1) < 0) ? (z + _elm_lang$core$Random$magicNum8) : z;
+	return {
+		ctor: '_Tuple2',
+		_0: newZ,
+		_1: A2(_elm_lang$core$Random$State, newState1, newState2)
+	};
+};
+var _elm_lang$core$Random$split = function (_p64) {
+	var _p65 = _p64;
+	var _p68 = _p65._1;
+	var _p67 = _p65._0;
+	var _p66 = _elm_lang$core$Tuple$second(
+		_elm_lang$core$Random$next(_p65));
+	var t1 = _p66._0;
+	var t2 = _p66._1;
+	var new_s2 = _elm_lang$core$Native_Utils.eq(_p68, 1) ? (_elm_lang$core$Random$magicNum7 - 1) : (_p68 - 1);
+	var new_s1 = _elm_lang$core$Native_Utils.eq(_p67, _elm_lang$core$Random$magicNum6 - 1) ? 1 : (_p67 + 1);
+	return {
+		ctor: '_Tuple2',
+		_0: A2(_elm_lang$core$Random$State, new_s1, t2),
+		_1: A2(_elm_lang$core$Random$State, t1, new_s2)
+	};
+};
+var _elm_lang$core$Random$Seed = function (a) {
+	return {ctor: 'Seed', _0: a};
+};
+var _elm_lang$core$Random$int = F2(
+	function (a, b) {
+		return _elm_lang$core$Random$Generator(
+			function (_p69) {
+				var _p70 = _p69;
+				var _p75 = _p70._0;
+				var base = 2147483561;
+				var f = F3(
+					function (n, acc, state) {
+						f:
+						while (true) {
+							var _p71 = n;
+							if (_p71 === 0) {
+								return {ctor: '_Tuple2', _0: acc, _1: state};
+							} else {
+								var _p72 = _p75.next(state);
+								var x = _p72._0;
+								var nextState = _p72._1;
+								var _v27 = n - 1,
+									_v28 = x + (acc * base),
+									_v29 = nextState;
+								n = _v27;
+								acc = _v28;
+								state = _v29;
+								continue f;
+							}
+						}
+					});
+				var _p73 = (_elm_lang$core$Native_Utils.cmp(a, b) < 0) ? {ctor: '_Tuple2', _0: a, _1: b} : {ctor: '_Tuple2', _0: b, _1: a};
+				var lo = _p73._0;
+				var hi = _p73._1;
+				var k = (hi - lo) + 1;
+				var n = A2(_elm_lang$core$Random$iLogBase, base, k);
+				var _p74 = A3(f, n, 1, _p75.state);
+				var v = _p74._0;
+				var nextState = _p74._1;
+				return {
+					ctor: '_Tuple2',
+					_0: lo + A2(_elm_lang$core$Basics_ops['%'], v, k),
+					_1: _elm_lang$core$Random$Seed(
+						_elm_lang$core$Native_Utils.update(
+							_p75,
+							{state: nextState}))
+				};
+			});
+	});
+var _elm_lang$core$Random$bool = A2(
+	_elm_lang$core$Random$map,
+	F2(
+		function (x, y) {
+			return _elm_lang$core$Native_Utils.eq(x, y);
+		})(1),
+	A2(_elm_lang$core$Random$int, 0, 1));
+var _elm_lang$core$Random$float = F2(
+	function (a, b) {
+		return _elm_lang$core$Random$Generator(
+			function (seed) {
+				var _p76 = A2(
+					_elm_lang$core$Random$step,
+					A2(_elm_lang$core$Random$int, _elm_lang$core$Random$minInt, _elm_lang$core$Random$maxInt),
+					seed);
+				var number = _p76._0;
+				var newSeed = _p76._1;
+				var negativeOneToOne = _elm_lang$core$Basics$toFloat(number) / _elm_lang$core$Basics$toFloat(_elm_lang$core$Random$maxInt - _elm_lang$core$Random$minInt);
+				var _p77 = (_elm_lang$core$Native_Utils.cmp(a, b) < 0) ? {ctor: '_Tuple2', _0: a, _1: b} : {ctor: '_Tuple2', _0: b, _1: a};
+				var lo = _p77._0;
+				var hi = _p77._1;
+				var scaled = ((lo + hi) / 2) + ((hi - lo) * negativeOneToOne);
+				return {ctor: '_Tuple2', _0: scaled, _1: newSeed};
+			});
+	});
+var _elm_lang$core$Random$initialSeed = function (n) {
+	return _elm_lang$core$Random$Seed(
+		{
+			state: _elm_lang$core$Random$initState(n),
+			next: _elm_lang$core$Random$next,
+			split: _elm_lang$core$Random$split,
+			range: _elm_lang$core$Random$range
+		});
+};
+var _elm_lang$core$Random$init = A2(
+	_elm_lang$core$Task$andThen,
+	function (t) {
+		return _elm_lang$core$Task$succeed(
+			_elm_lang$core$Random$initialSeed(
+				_elm_lang$core$Basics$round(t)));
+	},
+	_elm_lang$core$Time$now);
+var _elm_lang$core$Random$Generate = function (a) {
+	return {ctor: 'Generate', _0: a};
+};
+var _elm_lang$core$Random$generate = F2(
+	function (tagger, generator) {
+		return _elm_lang$core$Random$command(
+			_elm_lang$core$Random$Generate(
+				A2(_elm_lang$core$Random$map, tagger, generator)));
+	});
+var _elm_lang$core$Random$cmdMap = F2(
+	function (func, _p78) {
+		var _p79 = _p78;
+		return _elm_lang$core$Random$Generate(
+			A2(_elm_lang$core$Random$map, func, _p79._0));
+	});
+_elm_lang$core$Native_Platform.effectManagers['Random'] = {pkg: 'elm-lang/core', init: _elm_lang$core$Random$init, onEffects: _elm_lang$core$Random$onEffects, onSelfMsg: _elm_lang$core$Random$onSelfMsg, tag: 'cmd', cmdMap: _elm_lang$core$Random$cmdMap};
+
 var _elm_lang$core$Regex$split = _elm_lang$core$Native_Regex.split;
 var _elm_lang$core$Regex$replace = _elm_lang$core$Native_Regex.replace;
 var _elm_lang$core$Regex$find = _elm_lang$core$Native_Regex.find;
@@ -20231,269 +20610,132 @@ var _terezka$line_charts$LineChart$Config = function (a) {
 	};
 };
 
-var _user$project$Main$relevantData = function (d) {
+var _terezka$line_charts$LineChart_Axis_Title$custom = _terezka$line_charts$Internal_Axis_Title$custom;
+var _terezka$line_charts$LineChart_Axis_Title$atPosition = _terezka$line_charts$Internal_Axis_Title$atPosition;
+var _terezka$line_charts$LineChart_Axis_Title$atAxisMax = _terezka$line_charts$Internal_Axis_Title$atAxisMax;
+var _terezka$line_charts$LineChart_Axis_Title$atDataMax = _terezka$line_charts$Internal_Axis_Title$atDataMax;
+var _terezka$line_charts$LineChart_Axis_Title$default = _terezka$line_charts$Internal_Axis_Title$default;
+
+var _user$project$Main$round100 = function ($float) {
+	return _elm_lang$core$Basics$toFloat(
+		_elm_lang$core$Basics$round($float * 100)) / 100;
+};
+var _user$project$Main$formatY = function (datum) {
 	return A2(
 		_elm_lang$core$Basics_ops['++'],
-		'data: ',
-		A2(
-			_elm_lang$core$Basics_ops['++'],
-			_elm_lang$core$Basics$toString(d.c),
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				' ',
-				A2(
-					_elm_lang$core$Basics_ops['++'],
-					_jweir$elm_iso8601$ISO8601$toString(d.d),
-					A2(
-						_elm_lang$core$Basics_ops['++'],
-						' ',
-						_elm_lang$core$Basics$toString(
-							_jweir$elm_iso8601$ISO8601$toTime(d.d)))))));
+		_elm_lang$core$Basics$toString(
+			_user$project$Main$round100(datum.velocity)),
+		' m/s');
 };
-var _user$project$Main$to_i = function (d) {
+var _user$project$Main$formatX = function (datum) {
 	return A2(
-		_elm_lang$html$Html$li,
-		{ctor: '[]'},
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html$text(
-				_user$project$Main$relevantData(d)),
-			_1: {ctor: '[]'}
+		_mgold$elm_date_format$Date_Format$format,
+		'%e. %b, %Y',
+		_elm_lang$core$Date$fromTime(datum.time));
+};
+var _user$project$Main$containerConfig = _terezka$line_charts$LineChart_Container$custom(
+	{
+		attributesHtml: {ctor: '[]'},
+		attributesSvg: {ctor: '[]'},
+		size: _terezka$line_charts$LineChart_Container$relative,
+		margin: A4(_terezka$line_charts$LineChart_Container$Margin, 30, 100, 30, 70),
+		id: 'line-chart-area'
+	});
+var _user$project$Main$addCmd = F2(
+	function (cmd, model) {
+		return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+	});
+var _user$project$Main$setHint = F2(
+	function (hinted, model) {
+		return _elm_lang$core$Native_Utils.update(
+			model,
+			{hinted: hinted});
+	});
+var _user$project$Main$indexToTime = function (index) {
+	return ((((_elm_lang$core$Time$hour * 24) * 356) * 45) + ((_elm_lang$core$Time$hour * 24) * 30)) + ((_elm_lang$core$Time$hour * 1) * _elm_lang$core$Basics$toFloat(index));
+};
+var _user$project$Main$Model = F2(
+	function (a, b) {
+		return {data: a, hinted: b};
+	});
+var _user$project$Main$Data = F3(
+	function (a, b, c) {
+		return {nora: a, noah: b, nina: c};
+	});
+var _user$project$Main$Datum = F2(
+	function (a, b) {
+		return {time: a, velocity: b};
+	});
+var _user$project$Main$toData = function (numbers) {
+	var toDatum = F2(
+		function (index, velocity) {
+			return A2(
+				_user$project$Main$Datum,
+				_user$project$Main$indexToTime(index),
+				velocity);
 		});
+	return A2(_elm_lang$core$List$indexedMap, toDatum, numbers);
 };
-var _user$project$Main$toHtmlList = function (model) {
-	return A2(
-		_elm_lang$html$Html$ul,
-		{ctor: '[]'},
-		A2(_elm_lang$core$List$map, _user$project$Main$to_i, model.stats));
+var _user$project$Main$setData = F2(
+	function (_p0, model) {
+		var _p1 = _p0;
+		return _elm_lang$core$Native_Utils.update(
+			model,
+			{
+				data: A3(
+					_user$project$Main$Data,
+					_user$project$Main$toData(_p1._0),
+					_user$project$Main$toData(_p1._1),
+					_user$project$Main$toData(_p1._2))
+			});
+	});
+var _user$project$Main$update = F2(
+	function (msg, model) {
+		var _p2 = msg;
+		if (_p2.ctor === 'RecieveData') {
+			return A2(
+				_user$project$Main$addCmd,
+				_elm_lang$core$Platform_Cmd$none,
+				A2(_user$project$Main$setData, _p2._0, model));
+		} else {
+			return A2(
+				_user$project$Main$addCmd,
+				_elm_lang$core$Platform_Cmd$none,
+				A2(_user$project$Main$setHint, _p2._0, model));
+		}
+	});
+var _user$project$Main$Hint = function (a) {
+	return {ctor: 'Hint', _0: a};
 };
 var _user$project$Main$chartConfig = function (model) {
 	return {
 		y: A3(
 			_terezka$line_charts$LineChart_Axis$default,
-			400,
-			'Concentration',
+			450,
+			'velocity',
 			function (_) {
-				return _.y;
+				return _.velocity;
 			}),
 		x: A3(
 			_terezka$line_charts$LineChart_Axis$time,
-			750,
-			'Date',
+			1270,
+			'time',
 			function (_) {
-				return _.x;
+				return _.time;
 			}),
-		container: A5(_terezka$line_charts$LineChart_Container$spaced, 'line-chart-1', 60, 140, 60, 120),
-		interpolation: _terezka$line_charts$LineChart_Interpolation$default,
+		container: _user$project$Main$containerConfig,
+		interpolation: _terezka$line_charts$LineChart_Interpolation$monotone,
 		intersection: _terezka$line_charts$LineChart_Axis_Intersection$default,
 		legends: _terezka$line_charts$LineChart_Legends$default,
-		events: _terezka$line_charts$LineChart_Events$default,
-		junk: _terezka$line_charts$LineChart_Junk$default,
-		grid: _terezka$line_charts$LineChart_Grid$default,
-		area: _terezka$line_charts$LineChart_Area$default,
+		events: _terezka$line_charts$LineChart_Events$hoverMany(_user$project$Main$Hint),
+		junk: A3(_terezka$line_charts$LineChart_Junk$hoverMany, model.hinted, _user$project$Main$formatX, _user$project$Main$formatY),
+		grid: A2(_terezka$line_charts$LineChart_Grid$dots, 1, _terezka$line_charts$LineChart_Colors$gray),
+		area: _terezka$line_charts$LineChart_Area$stacked(0.5),
 		line: _terezka$line_charts$LineChart_Line$default,
-		dots: _terezka$line_charts$LineChart_Dots$default
+		dots: _terezka$line_charts$LineChart_Dots$custom(
+			A2(_terezka$line_charts$LineChart_Dots$empty, 5, 1))
 	};
 };
-var _user$project$Main$showChart = function (model) {
-	return A2(
-		_terezka$line_charts$LineChart$viewCustom,
-		_user$project$Main$chartConfig(model),
-		{
-			ctor: '::',
-			_0: A4(
-				_terezka$line_charts$LineChart$line,
-				_terezka$line_charts$LineChart_Colors$purple,
-				_terezka$line_charts$LineChart_Dots$square,
-				'QC',
-				A2(
-					_elm_lang$core$List$map,
-					function (d) {
-						return {
-							x: _jweir$elm_iso8601$ISO8601$toTime(d.d),
-							y: d.c
-						};
-					},
-					model.stats)),
-			_1: {ctor: '[]'}
-		});
-};
-var _user$project$Main$apiGet = function (id) {
-	var path = '/chart_points/show/';
-	var host = 'http://localhost:3000';
-	var _p0 = A2(_elm_lang$core$Debug$log, 'running apiGet', 1);
-	return _elm_lang$http$Http$getString(
-		A2(
-			_elm_lang$core$Basics_ops['++'],
-			host,
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				path,
-				A2(
-					_elm_lang$core$Basics_ops['++'],
-					_elm_lang$core$Basics$toString(id),
-					'.json'))));
-};
-var _user$project$Main$currentAnalyte = function (model) {
-	return model.flags.analyteid;
-};
-var _user$project$Main$newStyle = function (s) {
-	var _p1 = s;
-	switch (_p1) {
-		case 'block':
-			return 'none';
-		case 'none':
-			return 'block';
-		default:
-			return 'block';
-	}
-};
-var _user$project$Main$exampleData = '{\"vals\":{\"stats\":{\"nominal\":5.0,\"mean\":4.772857142857142,\"deviation\":0.15157003724508414},\"qcresults\":[{\"id\":31008274,\"c\":4.718,\"d\":\"2018-04-12T13:34:51.000Z\"},{\"id\":31008266,\"c\":4.71,\"d\":\"2018-04-12T12:40:35.000Z\"},{\"id\":31008260,\"c\":4.744,\"d\":\"2018-04-12T12:23:19.000Z\"},{\"id\":30984474,\"c\":4.552,\"d\":\"2018-04-11T12:07:22.000Z\"},{\"id\":30984465,\"c\":4.757,\"d\":\"2018-04-11T11:04:41.000Z\"},{\"id\":30953440,\"c\":4.903,\"d\":\"2018-04-10T13:30:06.000Z\"},{\"id\":30953428,\"c\":5.026,\"d\":\"2018-04-10T12:28:07.000Z\"}]}}';
-var _user$project$Main$decodeTimeStamp = A2(
-	_elm_lang$core$Json_Decode$andThen,
-	function (val) {
-		var _p2 = _jweir$elm_iso8601$ISO8601$fromString(val);
-		if (_p2.ctor === 'Ok') {
-			return _elm_lang$core$Json_Decode$succeed(_p2._0);
-		} else {
-			return _elm_lang$core$Json_Decode$fail(_p2._0);
-		}
-	},
-	_elm_lang$core$Json_Decode$string);
-var _user$project$Main$Model = F4(
-	function (a, b, c, d) {
-		return {flags: a, stats: b, dataDisplay: c, hovered: d};
-	});
-var _user$project$Main$Flags = F2(
-	function (a, b) {
-		return {analyteid: a, chart_data: b};
-	});
-var _user$project$Main$MyData = function (a) {
-	return {vals: a};
-};
-var _user$project$Main$Vals = F2(
-	function (a, b) {
-		return {stats: a, qcresults: b};
-	});
-var _user$project$Main$Stats = F3(
-	function (a, b, c) {
-		return {nominal: a, mean: b, deviation: c};
-	});
-var _user$project$Main$decodeStats = A4(
-	_elm_lang$core$Json_Decode$map3,
-	_user$project$Main$Stats,
-	A2(_elm_lang$core$Json_Decode$field, 'nominal', _elm_lang$core$Json_Decode$float),
-	A2(_elm_lang$core$Json_Decode$field, 'mean', _elm_lang$core$Json_Decode$float),
-	A2(_elm_lang$core$Json_Decode$field, 'deviation', _elm_lang$core$Json_Decode$float));
-var _user$project$Main$Cid = F3(
-	function (a, b, c) {
-		return {id: a, c: b, d: c};
-	});
-var _user$project$Main$decodeCid = A4(
-	_elm_lang$core$Json_Decode$map3,
-	_user$project$Main$Cid,
-	A2(_elm_lang$core$Json_Decode$field, 'id', _elm_lang$core$Json_Decode$int),
-	A2(_elm_lang$core$Json_Decode$field, 'c', _elm_lang$core$Json_Decode$float),
-	A2(_elm_lang$core$Json_Decode$field, 'd', _user$project$Main$decodeTimeStamp));
-var _user$project$Main$decodeQcresults = _elm_lang$core$Json_Decode$list(_user$project$Main$decodeCid);
-var _user$project$Main$decodeVals = A3(
-	_elm_lang$core$Json_Decode$map2,
-	_user$project$Main$Vals,
-	A2(_elm_lang$core$Json_Decode$field, 'stats', _user$project$Main$decodeStats),
-	A2(_elm_lang$core$Json_Decode$field, 'qcresults', _user$project$Main$decodeQcresults));
-var _user$project$Main$decodeMyData = A2(
-	_elm_lang$core$Json_Decode$map,
-	_user$project$Main$MyData,
-	A2(_elm_lang$core$Json_Decode$field, 'vals', _user$project$Main$decodeVals));
-var _user$project$Main$extract = function (j) {
-	var a = A2(_elm_lang$core$Json_Decode$decodeString, _user$project$Main$decodeMyData, j);
-	var _p3 = a;
-	if (_p3.ctor === 'Ok') {
-		return _elm_lang$core$Maybe$Just(_p3._0);
-	} else {
-		return _elm_lang$core$Maybe$Nothing;
-	}
-};
-var _user$project$Main$destruktor = function (s) {
-	var d = _user$project$Main$extract(s);
-	var _p4 = d;
-	if (_p4.ctor === 'Nothing') {
-		return {ctor: '[]'};
-	} else {
-		return _p4._0.vals.qcresults;
-	}
-};
-var _user$project$Main$init = function (flags) {
-	return {
-		ctor: '_Tuple2',
-		_0: {
-			flags: flags,
-			stats: _user$project$Main$destruktor(flags.chart_data),
-			dataDisplay: 'none',
-			hovered: _elm_lang$core$Maybe$Nothing
-		},
-		_1: _elm_lang$core$Platform_Cmd$none
-	};
-};
-var _user$project$Main$Point = F2(
-	function (a, b) {
-		return {x: a, y: b};
-	});
-var _user$project$Main$ItemsResult = function (a) {
-	return {ctor: 'ItemsResult', _0: a};
-};
-var _user$project$Main$update = F2(
-	function (msg, model) {
-		var _p5 = msg;
-		switch (_p5.ctor) {
-			case 'Hover':
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{hovered: _p5._0}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
-			case 'ShowData':
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{
-							dataDisplay: _user$project$Main$newStyle(model.dataDisplay)
-						}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
-			case 'TryApi':
-				var cmd = A2(
-					_elm_lang$http$Http$send,
-					_user$project$Main$ItemsResult,
-					_user$project$Main$apiGet(18326));
-				return {ctor: '_Tuple2', _0: model, _1: cmd};
-			case 'ItemsResult':
-				if (_p5._0.ctor === 'Ok') {
-					return {
-						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.update(
-							model,
-							{
-								stats: _user$project$Main$destruktor(_p5._0._0)
-							}),
-						_1: _elm_lang$core$Platform_Cmd$none
-					};
-				} else {
-					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-				}
-			default:
-				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-		}
-	});
-var _user$project$Main$NoOp = {ctor: 'NoOp'};
-var _user$project$Main$ShowData = {ctor: 'ShowData'};
-var _user$project$Main$Hover = function (a) {
-	return {ctor: 'Hover', _0: a};
-};
-var _user$project$Main$TryApi = {ctor: 'TryApi'};
 var _user$project$Main$view = function (model) {
 	return A2(
 		_elm_lang$html$Html$div,
@@ -20501,180 +20743,64 @@ var _user$project$Main$view = function (model) {
 		{
 			ctor: '::',
 			_0: A2(
-				_elm_lang$html$Html$div,
+				_terezka$line_charts$LineChart$viewCustom,
+				_user$project$Main$chartConfig(model),
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$style(
-						{
-							ctor: '::',
-							_0: {ctor: '_Tuple2', _0: 'backgroundColor', _1: '#fe0'},
-							_1: {ctor: '[]'}
-						}),
-					_1: {ctor: '[]'}
-				},
-				{
-					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$div,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$style(
-								{
-									ctor: '::',
-									_0: {ctor: '_Tuple2', _0: 'border', _1: 'solid red 1px'},
-									_1: {
-										ctor: '::',
-										_0: {ctor: '_Tuple2', _0: 'width', _1: '400px'},
-										_1: {
-											ctor: '::',
-											_0: {ctor: '_Tuple2', _0: 'margin', _1: '1em auto'},
-											_1: {ctor: '[]'}
-										}
-									}
-								}),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$html$Html_Events$onClick(_user$project$Main$TryApi),
-								_1: {ctor: '[]'}
-							}
-						},
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html$text('click here to load chart remotely'),
-							_1: {ctor: '[]'}
-						}),
-					_1: {ctor: '[]'}
-				}),
-			_1: {
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$div,
-					{ctor: '[]'},
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html$text(
-							_elm_lang$core$Basics$toString(model.hovered)),
-						_1: {ctor: '[]'}
-					}),
-				_1: {
-					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$div,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$style(
-								{
-									ctor: '::',
-									_0: {ctor: '_Tuple2', _0: 'border', _1: 'solid green 1px'},
-									_1: {
-										ctor: '::',
-										_0: {ctor: '_Tuple2', _0: 'width', _1: '400px'},
-										_1: {
-											ctor: '::',
-											_0: {ctor: '_Tuple2', _0: 'margin', _1: '1em auto'},
-											_1: {ctor: '[]'}
-										}
-									}
-								}),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$html$Html_Events$onClick(_user$project$Main$ShowData),
-								_1: {ctor: '[]'}
-							}
-						},
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html$text('click here to toggle data'),
-							_1: {ctor: '[]'}
-						}),
+					_0: A4(_terezka$line_charts$LineChart$line, _terezka$line_charts$LineChart_Colors$pink, _terezka$line_charts$LineChart_Dots$diamond, 'Nora', model.data.nora),
 					_1: {
 						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$div,
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$id('data-list'),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$style(
-										{
-											ctor: '::',
-											_0: {ctor: '_Tuple2', _0: 'display', _1: model.dataDisplay},
-											_1: {
-												ctor: '::',
-												_0: {ctor: '_Tuple2', _0: 'backgroundColor', _1: '#44ffaa'},
-												_1: {
-													ctor: '::',
-													_0: {ctor: '_Tuple2', _0: 'margin', _1: '1em'},
-													_1: {ctor: '[]'}
-												}
-											}
-										}),
-									_1: {ctor: '[]'}
-								}
-							},
-							{
-								ctor: '::',
-								_0: _user$project$Main$toHtmlList(model),
-								_1: {ctor: '[]'}
-							}),
+						_0: A4(_terezka$line_charts$LineChart$line, _terezka$line_charts$LineChart_Colors$cyan, _terezka$line_charts$LineChart_Dots$circle, 'Noah', model.data.noah),
 						_1: {
 							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$div,
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$style(
-										{
-											ctor: '::',
-											_0: {ctor: '_Tuple2', _0: 'border', _1: 'solid rgb(182, 235, 205) 1px'},
-											_1: {
-												ctor: '::',
-												_0: {ctor: '_Tuple2', _0: 'width', _1: '715px'},
-												_1: {
-													ctor: '::',
-													_0: {ctor: '_Tuple2', _0: 'margin', _1: '1em auto'},
-													_1: {
-														ctor: '::',
-														_0: {ctor: '_Tuple2', _0: 'padding', _1: 'auto'},
-														_1: {ctor: '[]'}
-													}
-												}
-											}
-										}),
-									_1: {ctor: '[]'}
-								},
-								{
-									ctor: '::',
-									_0: _user$project$Main$showChart(model),
-									_1: {ctor: '[]'}
-								}),
+							_0: A4(_terezka$line_charts$LineChart$line, _terezka$line_charts$LineChart_Colors$blue, _terezka$line_charts$LineChart_Dots$triangle, 'Nina', model.data.nina),
 							_1: {ctor: '[]'}
 						}
 					}
-				}
-			}
+				}),
+			_1: {ctor: '[]'}
 		});
 };
-var _user$project$Main$main = _elm_lang$html$Html$programWithFlags(
+var _user$project$Main$RecieveData = function (a) {
+	return {ctor: 'RecieveData', _0: a};
+};
+var _user$project$Main$generateData = function () {
+	var genNumbers = A2(
+		_elm_lang$core$Random$list,
+		40,
+		A2(_elm_lang$core$Random$float, 5, 20));
+	return A2(
+		_elm_lang$core$Random$generate,
+		_user$project$Main$RecieveData,
+		A4(
+			_elm_lang$core$Random$map3,
+			F3(
+				function (v0, v1, v2) {
+					return {ctor: '_Tuple3', _0: v0, _1: v1, _2: v2};
+				}),
+			genNumbers,
+			genNumbers,
+			genNumbers));
+}();
+var _user$project$Main$init = {
+	ctor: '_Tuple2',
+	_0: {
+		data: A3(
+			_user$project$Main$Data,
+			{ctor: '[]'},
+			{ctor: '[]'},
+			{ctor: '[]'}),
+		hinted: {ctor: '[]'}
+	},
+	_1: _user$project$Main$generateData
+};
+var _user$project$Main$main = _elm_lang$html$Html$program(
 	{
-		view: _user$project$Main$view,
 		init: _user$project$Main$init,
 		update: _user$project$Main$update,
+		view: _user$project$Main$view,
 		subscriptions: _elm_lang$core$Basics$always(_elm_lang$core$Platform_Sub$none)
-	})(
-	A2(
-		_elm_lang$core$Json_Decode$andThen,
-		function (analyteid) {
-			return A2(
-				_elm_lang$core$Json_Decode$andThen,
-				function (chart_data) {
-					return _elm_lang$core$Json_Decode$succeed(
-						{analyteid: analyteid, chart_data: chart_data});
-				},
-				A2(_elm_lang$core$Json_Decode$field, 'chart_data', _elm_lang$core$Json_Decode$string));
-		},
-		A2(_elm_lang$core$Json_Decode$field, 'analyteid', _elm_lang$core$Json_Decode$int)));
+	})();
 
 var Elm = {};
 Elm['Main'] = Elm['Main'] || {};

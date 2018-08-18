@@ -29,351 +29,203 @@ import LineChart.Legends as Legends
 import LineChart.Legends as Legends
 import LineChart.Line as Line
 import LineChart.Line as Line
+import Time
+import Date
+import Date.Format exposing (format)
+import Random
 
 
----- MODEL ----
+-- MODEL
 
 
 type alias Model =
-    { flags : Flags
-    , stats : List Cid
-    , dataDisplay : String
-    , hovered : Maybe Cid
+    { data : Data
+    , hinted : List Datum
     }
 
 
-init : Flags -> ( Model, Cmd Msg )
-init flags =
-    ( { flags = flags
-      , stats = destruktor flags.chart_data
-      , dataDisplay = "none"
-      , hovered = Nothing
+type alias Data =
+    { nora : List Datum
+    , noah : List Datum
+    , nina : List Datum
+    }
+
+
+type alias Datum =
+    { time : Time.Time
+    , velocity : Float
+    }
+
+
+
+-- INIT
+
+
+init : ( Model, Cmd Msg )
+init =
+    ( { data = Data [] [] []
+      , hinted = []
       }
-    , Cmd.none
+    , generateData
     )
 
 
-type alias Flags =
-    { analyteid : Int
-    , chart_data : String
-    }
-
-
-type alias MyData =
-    { vals : Vals }
-
-
-type alias Vals =
-    { stats : Stats
-    , qcresults : List Cid
-    }
-
-
-type alias Stats =
-    { nominal : Float
-    , mean : Float
-    , deviation : Float
-    }
-
-
-type alias Cid =
-    { id : Int
-    , c : Float
-    , d : ISO8601.Time
-    }
-
-
-type alias Point =
-    { x : Float, y : Float }
-
-
-
--- DECODERS
--- repl use:       decodeString Main.decodeMyData Main.exampleData
-
-
-decodeMyData : Decoder MyData
-decodeMyData =
-    map MyData (field "vals" decodeVals)
-
-
-decodeVals : Decoder Vals
-decodeVals =
-    (map2 Vals (field "stats" decodeStats) (field "qcresults" decodeQcresults))
-
-
-decodeStats : Decoder Stats
-decodeStats =
-    map3 Stats (field "nominal" float) (field "mean" float) (field "deviation" float)
-
-
-decodeQcresults : Decoder (List Cid)
-decodeQcresults =
-    list decodeCid
-
-
-decodeCid : Decoder Cid
-decodeCid =
-    map3 Cid (field "id" int) (field "c" float) (field "d" decodeTimeStamp)
-
-
-decodeTimeStamp : Decoder ISO8601.Time
-decodeTimeStamp =
-    string
-        |> andThen
-            (\val ->
-                (case (ISO8601.fromString val) of
-                    Ok ts ->
-                        Json.Decode.succeed ts
-
-                    Err errmsg ->
-                        Json.Decode.fail errmsg
-                )
-            )
-
-
-
--- extracted from the rails console with: analyte.json_qc.to_json
-
-
-exampleData : String
-exampleData =
-    "{\"vals\":{\"stats\":{\"nominal\":5.0,\"mean\":4.772857142857142,\"deviation\":0.15157003724508414},\"qcresults\":[{\"id\":31008274,\"c\":4.718,\"d\":\"2018-04-12T13:34:51.000Z\"},{\"id\":31008266,\"c\":4.71,\"d\":\"2018-04-12T12:40:35.000Z\"},{\"id\":31008260,\"c\":4.744,\"d\":\"2018-04-12T12:23:19.000Z\"},{\"id\":30984474,\"c\":4.552,\"d\":\"2018-04-11T12:07:22.000Z\"},{\"id\":30984465,\"c\":4.757,\"d\":\"2018-04-11T11:04:41.000Z\"},{\"id\":30953440,\"c\":4.903,\"d\":\"2018-04-10T13:30:06.000Z\"},{\"id\":30953428,\"c\":5.026,\"d\":\"2018-04-10T12:28:07.000Z\"}]}}"
-
-
-extract : String -> Maybe MyData
-extract j =
+generateData : Cmd Msg
+generateData =
     let
-        a =
-            decodeString decodeMyData j
+        genNumbers =
+            Random.list 40 (Random.float 5 20)
     in
-        case a of
-            Ok z ->
-                Just z
-
-            Err _ ->
-                Nothing
+        Random.map3 (,,) genNumbers genNumbers genNumbers
+            |> Random.generate RecieveData
 
 
-destruktor : String -> List Cid
-destruktor s =
+
+-- API
+
+
+setData : ( List Float, List Float, List Float ) -> Model -> Model
+setData ( n1, n2, n3 ) model =
+    { model | data = Data (toData n1) (toData n2) (toData n3) }
+
+
+toData : List Float -> List Datum
+toData numbers =
     let
-        d =
-            extract s
+        toDatum index velocity =
+            Datum (indexToTime index) velocity
     in
-        case d of
-            Nothing ->
-                []
+        List.indexedMap toDatum numbers
 
-            Just a ->
-                a.vals.qcresults
+
+indexToTime : Int -> Time.Time
+indexToTime index =
+    Time.hour
+        * 24
+        * 356
+        * 45
+        + -- 45 years
+          Time.hour
+        * 24
+        * 30
+        + -- a month
+          Time.hour
+        * 1
+        * toFloat index
+
+
+
+-- hours from first datum
+
+
+setHint : List Datum -> Model -> Model
+setHint hinted model =
+    { model | hinted = hinted }
+
+
+
+-- UPDATE
 
 
 type Msg
-    = TryApi
-    | Hover (Maybe Cid)
-    | ShowData
-    | NoOp
-    | ItemsResult (Result Http.Error String)
-
-
-newStyle : String -> String
-newStyle s =
-    (case s of
-        "block" ->
-            "none"
-
-        "none" ->
-            "block"
-
-        _ ->
-            "block"
-    )
+    = RecieveData ( List Float, List Float, List Float )
+    | Hint (List Datum)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Hover hovered ->
-            ( { model | hovered = hovered }, Cmd.none )
+        RecieveData numbers ->
+            model
+                |> setData numbers
+                |> addCmd Cmd.none
 
-        ShowData ->
-            ( { model
-                | dataDisplay =
-                    newStyle model.dataDisplay
-              }
-            , Cmd.none
-            )
-
-        TryApi ->
-            let
-                cmd =
-                    Http.send ItemsResult <|
-                        apiGet 18326
-            in
-                ( model, cmd )
-
-        ItemsResult (Ok json_data) ->
-            ( { model
-                | stats = destruktor json_data
-              }
-            , Cmd.none
-            )
-
-        ItemsResult (Err err) ->
-            ( model, Cmd.none )
-
-        NoOp ->
-            ( model, Cmd.none )
+        Hint points ->
+            model
+                |> setHint points
+                |> addCmd Cmd.none
 
 
-currentAnalyte : { c | flags : { b | analyteid : a } } -> a
-currentAnalyte model =
-    model.flags.analyteid
-
-
-apiGet : a -> Http.Request String
-apiGet id =
-    let
-        _ =
-            Debug.log "running apiGet" 1
-
-        host =
-            "http://localhost:3000"
-
-        path =
-            "/chart_points/show/"
-    in
-        Http.getString (host ++ path ++ (toString id) ++ ".json")
+addCmd : Cmd Msg -> Model -> ( Model, Cmd Msg )
+addCmd cmd model =
+    ( model, Cmd.none )
 
 
 
----- VIEW ----
+-- VIEW
 
 
-view : Model -> Html Msg
+view : Model -> Html.Html Msg
 view model =
-    div []
-        [ div
-            [ (style [ ( "backgroundColor", "#fe0" ) ]) ]
-            [ div
-                [ (style
-                    [ ( "border", "solid red 1px" )
-                    , ( "width", "400px" )
-                    , ( "margin", "1em auto" )
-                    ]
-                  )
-                , onClick (TryApi)
-                ]
-                [ text "click here to load chart remotely" ]
+    Html.div []
+        [ LineChart.viewCustom (chartConfig model)
+            [ LineChart.line Colors.pink Dots.diamond "Nora" model.data.nora
+            , LineChart.line Colors.cyan Dots.circle "Noah" model.data.noah
+            , LineChart.line Colors.blue Dots.triangle "Nina" model.data.nina
             ]
-        , div [] [ text (toString model.hovered) ]
-        , div
-            [ (style
-                [ ( "border", "solid green 1px" )
-                , ( "width", "400px" )
-                , ( "margin", "1em auto" )
-                ]
-              )
-            , onClick (ShowData)
-            ]
-            [ text "click here to toggle data" ]
-        , div
-            [ (id "data-list")
-            , (style
-                [ ( "display", model.dataDisplay )
-                , ( "backgroundColor", "#44ffaa" )
-                , ( "margin", "1em" )
-                ]
-              )
-            ]
-            [ toHtmlList model
-            ]
-        , div
-            [ (style
-                [ ( "border", "solid rgb(182, 235, 205) 1px" )
-                , ( "width", "715px" )
-                , ( "margin", "1em auto" )
-                , ( "padding", "auto" )
-                ]
-              )
-            ]
-            [ showChart model ]
-        ]
-
-
-showChart model =
-    LineChart.viewCustom (chartConfig model)
-        [ LineChart.line Colors.purple
-            Dots.square
-            "QC"
-            (List.map
-                (\d ->
-                    { x = (ISO8601.toTime d.d)
-                    , y = d.c
-                    }
-                )
-                model.stats
-            )
         ]
 
 
 
--- there seems to be a problem with custom junk documentation
--- need to review on Monday
+-- CHART CONFIG
 
 
+chartConfig : Model -> LineChart.Config Datum Msg
 chartConfig model =
-    { y = Axis.default 400 "Concentration" .y
-    , x = Axis.time 750 "Date" .x
-    , container = Container.spaced "line-chart-1" 60 140 60 120
-    , interpolation = Interpolation.default
+    { y = Axis.default 450 "velocity" .velocity
+    , x = Axis.time 1270 "time" .time
+    , container = containerConfig
+    , interpolation = Interpolation.monotone
     , intersection = Intersection.default
     , legends = Legends.default
-    , events = Events.hoverOne Hover
-    , junk =
-        Junk.default
-
-    -- Junk.hoverOne model.hovered
-    --     [ ( "conc", toString << .c )
-    --     , ( "date", toString << .d )
-    --     ]
-    , grid = Grid.default
-    , area = Area.default
+    , events = Events.hoverMany Hint
+    , junk = Junk.hoverMany model.hinted formatX formatY
+    , grid = Grid.dots 1 Colors.gray
+    , area = Area.stacked 0.5
     , line = Line.default
-    , dots = Dots.default
+    , dots = Dots.custom (Dots.empty 5 1)
     }
 
 
-toHtmlList : { c | stats : List { b | c : a, d : ISO8601.Time } } -> Html msg
-toHtmlList model =
-    ul [] (List.map to_i model.stats)
+containerConfig : Container.Config Msg
+containerConfig =
+    Container.custom
+        { attributesHtml = []
+        , attributesSvg = []
+        , size = Container.relative
+        , margin = Container.Margin 30 100 30 70
+        , id = "line-chart-area"
+        }
 
 
-to_i : { b | c : a, d : ISO8601.Time } -> Html msg
-to_i d =
-    li [] [ text (relevantData d) ]
+formatX : Datum -> String
+formatX datum =
+    Date.Format.format "%e. %b, %Y" (Date.fromTime datum.time)
 
 
-relevantData : { b | c : a, d : ISO8601.Time } -> String
-relevantData d =
-    "data: "
-        ++ (toString d.c)
-        ++ " "
-        ++ (ISO8601.toString d.d)
-        ++ " "
-        ++ (toString (ISO8601.toTime d.d))
+formatY : Datum -> String
+formatY datum =
+    toString (round100 datum.velocity) ++ " m/s"
 
 
 
----- PROGRAM ----
+-- UTILS
 
 
-main : Program Flags Model Msg
+round100 : Float -> Float
+round100 float =
+    toFloat (round (float * 100)) / 100
+
+
+
+-- PROGRAM
+
+
+main : Program Never Model Msg
 main =
-    Html.programWithFlags
-        { view = view
-        , init = init
+    Html.program
+        { init = init
         , update = update
+        , view = view
         , subscriptions = always Sub.none
         }

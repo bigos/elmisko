@@ -14,10 +14,8 @@
 
 <script>
  var node = document.getElementById('elmdiv');
- var app = Elm.Main.embed(node, {
-   analyteid: <%= @population.id %>,
-   chart_data: '<%= raw @population.samples.to_json %>'
- });
+ var app = Elm.Main.embed(node
+ );
  // Note: if your Elm module is named "MyThing.Root" you
  // would call "Elm.MyThing.Root.embed(node)" instead.
 </script>
