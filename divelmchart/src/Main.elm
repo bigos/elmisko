@@ -61,6 +61,34 @@ type alias Flags =
     }
 
 
+type alias MyData =
+    { vals : Vals }
+
+
+type alias Vals =
+    { stats : Stats
+    , qcresults : List Cid
+    }
+
+
+type alias Stats =
+    { nominal : Float
+    , mean : Float
+    , deviation : Float
+    }
+
+
+type alias Cid =
+    { id : Int
+    , c : Float
+    , d : ISO8601.Time
+    }
+
+
+type alias Point =
+    { x : Float, y : Float }
+
+
 
 -- INIT
 
